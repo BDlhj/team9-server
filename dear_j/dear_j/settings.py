@@ -10,7 +10,6 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
-import datetime
 import json
 import os
 import pathlib
@@ -25,7 +24,10 @@ BASE_DIR = pathlib.Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-gkub&ga4g000$!upi9o2svpo85634yaa9+af*mz94d(zl3n4q("
+with open(os.path.join(BASE_DIR, "dear_j/secrets.json"), "rb") as secret_file:
+    secrets = json.load(secret_file)
+
+SECRET_KEY = secrets["SECRET_KEY"]
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
