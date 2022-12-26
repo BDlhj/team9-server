@@ -4,11 +4,11 @@ import urllib
 
 from django import http
 from django import shortcuts
-from rest_framework import views
 from rest_framework import permissions
+from rest_framework import views
 
 from allauth.account import models as allauth_models
-from allauth.socialaccount.providers.kakao import views
+from allauth.socialaccount.providers.kakao import views as kakao_views
 from allauth.socialaccount.providers.oauth2 import client
 import jwt
 import requests
@@ -27,10 +27,11 @@ class ConfirmEmailView(views.APIView):
     def get(self, *args, **kwargs):
         self.object = confirmation = self.get_object()
         confirmation.confirm(self.request)
-        return http.HttpResponseRedirect("/")
+        # A React Router Route will handle the failure scenario
+        return http.HttpResponseRedirect('/login/success/')
 
     def get_object(self, queryset=None):
-        key = self.kwargs["key"]
+        key = self.kwargs['key']
         email_confirmation = allauth_models.EmailConfirmationHMAC.from_key(key)
         if not email_confirmation:
             if queryset is None:
@@ -38,7 +39,8 @@ class ConfirmEmailView(views.APIView):
             try:
                 email_confirmation = queryset.get(key=key.lower())
             except allauth_models.EmailConfirmation.DoesNotExist:
-                return http.HttpResponseRedirect("/")
+                # A React Router Route will handle the failure scenario
+                return http.HttpResponseRedirect('/login/failure/')
         return email_confirmation
 
     def get_queryset(self):

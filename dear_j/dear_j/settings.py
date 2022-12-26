@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "django.contrib.sites",
+
     "allauth.account",
     "allauth.socialaccount",
     "allauth.socialaccount.providers.kakao",
@@ -53,7 +53,8 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework.authtoken",
     "rest_framework_simplejwt.token_blacklist",
-    "user.apps.UserConfig"
+    "user.apps.UserConfig",
+    "django.contrib.sites",
 ]
 
 
@@ -92,7 +93,9 @@ ROOT_URLCONF = "dear_j.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [
+            os.path.join(BASE_DIR, "templates"),
+        ],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
