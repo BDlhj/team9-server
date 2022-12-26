@@ -4,7 +4,10 @@ import urllib
 
 from django import http
 from django import shortcuts
+from rest_framework import views
+from rest_framework import permissions
 
+from allauth.account import models as allauth_models
 from allauth.socialaccount.providers.kakao import views
 from allauth.socialaccount.providers.oauth2 import client
 import jwt
@@ -16,6 +19,32 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 with open(os.path.join(BASE_DIR, 'dear_j/secrets.json'), 'rb') as secret_file:
     secrets = json.load(secret_file)
+
+
+class ConfirmEmailView(views.APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, *args, **kwargs):
+        self.object = confirmation = self.get_object()
+        confirmation.confirm(self.request)
+        return http.HttpResponseRedirect("/")
+
+    def get_object(self, queryset=None):
+        key = self.kwargs["key"]
+        email_confirmation = allauth_models.EmailConfirmationHMAC.from_key(key)
+        if not email_confirmation:
+            if queryset is None:
+                queryset = self.get_queryset()
+            try:
+                email_confirmation = queryset.get(key=key.lower())
+            except allauth_models.EmailConfirmation.DoesNotExist:
+                return http.HttpResponseRedirect("/")
+        return email_confirmation
+
+    def get_queryset(self):
+        qs = allauth_models.EmailConfirmation.objects.all_valid()
+        qs = qs.select_related("email_address__user")
+        return qs
 
 
 def kakao_login(request):
